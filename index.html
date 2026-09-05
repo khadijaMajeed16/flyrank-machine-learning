@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can Search Visibility Predict What's About to Decline? — FlyRank Capstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F5F5F1;
+    --paper-raised: #FFFFFF;
+    --ink: #171A1C;
+    --ink-soft: #52585D;
+    --ink-faint: #8A9096;
+    --line: #DBDBD2;
+    --accent-teal: #2E6F80;
+    --accent-teal-soft: #E4EEF0;
+    --accent-clay: #A65141;
+    --accent-amber: #B8722E;
+    --accent-sage: #4C6B54;
+    --accent-slate: #5B6B78;
+    --radius: 3px;
+    --measure: 700px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  p { margin: 0 0 1.1em 0; }
+
+  a { color: var(--accent-teal); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-clay); }
+
+  .wrap {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .wide {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Hero ---------- */
+
+  header.hero {
+    background: linear-gradient(180deg, #ECEEE9 0%, var(--paper) 100%);
+    border-bottom: 1px solid var(--line);
+    padding: 84px 0 56px;
+  }
+
+  .kicker {
+    font-size: 14px;
+    color: var(--accent-teal);
+    font-weight: 500;
+    margin-bottom: 18px;
+    letter-spacing: 0.01em;
+  }
+
+  h1.title {
+    font-size: 40px;
+    letter-spacing: -0.01em;
+    margin-bottom: 22px;
+    max-width: 640px;
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    margin-bottom: 34px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .byline strong { color: var(--ink); font-weight: 500; }
+
+  .abstract {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent-teal);
+    padding: 24px 26px;
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+  .abstract p:last-child { margin-bottom: 0; }
+  .abstract .label {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 15px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* ---------- Nav / TOC ---------- */
+
+  nav.toc {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  nav.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+  }
+  nav.toc li { width: 50%; }
+  nav.toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14.5px;
+    display: flex;
+    gap: 8px;
+  }
+  nav.toc a:hover { color: var(--accent-clay); }
+  nav.toc .n {
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  @media (max-width: 560px) {
+    nav.toc li { width: 100%; }
+    h1.title { font-size: 30px; }
+  }
+
+  /* ---------- Sections ---------- */
+
+  section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-of-type { border-bottom: none; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--accent-teal);
+    border: 1px solid var(--accent-teal);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  h2.section-title { font-size: 24px; }
+
+  h3.sub {
+    font-size: 17px;
+    margin: 28px 0 10px;
+    color: var(--ink);
+  }
+
+  .lede {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 620px;
+  }
+
+  ul, ol.plain {
+    padding-left: 22px;
+    margin: 0 0 1.1em 0;
+  }
+  li { margin-bottom: 6px; }
+
+  code, .mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.88em;
+    background: var(--accent-teal-soft);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #1F4A54;
+  }
+
+  .callout {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 18px 20px;
+    font-size: 15.5px;
+    color: var(--ink-soft);
+    margin: 20px 0;
+  }
+  .callout.limits { border-left: 3px solid var(--accent-clay); }
+  .callout.finding { border-left: 3px solid var(--accent-amber); }
+
+  /* ---------- Tables ---------- */
+
+  .table-scroll { overflow-x: auto; margin: 18px 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14.5px;
+    min-width: 560px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  th {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    text-transform: none;
+    border-bottom: 1px solid var(--ink);
+  }
+  td.id { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); }
+  td.score { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .tag.refresh { background: #F3E3DF; color: var(--accent-clay); }
+  .tag.review  { background: #F1E7D6; color: var(--accent-amber); }
+  .tag.monitor { background: var(--accent-teal-soft); color: var(--accent-teal); }
+  .tag.protect { background: #E4EAE4; color: var(--accent-sage); }
+
+  /* ---------- Metrics row ---------- */
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 24px 0;
+  }
+  .metric {
+    background: var(--paper-raised);
+    padding: 20px 18px;
+  }
+  .metric .num {
+    font-family: 'Source Serif 4', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--accent-teal);
+    line-height: 1;
+  }
+  .metric .lbl {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+  @media (max-width: 640px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ---------- Charts ---------- */
+
+  .chart-block {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 22px 22px 12px;
+    margin: 22px 0;
+  }
+  .chart-caption {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  svg text { font-family: 'IBM Plex Sans', sans-serif; }
+
+  /* ---------- Recommendation cards ---------- */
+
+  .rec-list { list-style: none; padding: 0; margin: 0; counter-reset: rec; }
+  .rec-list li {
+    counter-increment: rec;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rec-list li:last-child { border-bottom: none; }
+  .rec-list li::before {
+    content: counter(rec);
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent-teal);
+    font-size: 14px;
+    padding-top: 2px;
+  }
+  .rec-list h4 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15.5px;
+    margin: 0 0 4px 0;
+  }
+  .rec-list p { margin: 0; font-size: 15px; color: var(--ink-soft); }
+
+  /* ---------- Footer ---------- */
+
+  footer {
+    padding: 40px 0 70px;
+  }
+  .footer-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 22px 24px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .footer-card a { font-weight: 500; }
+  .checklist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+  }
+  .checklist span { display: flex; gap: 8px; align-items: baseline; }
+  .checklist span::before { content: "—"; color: var(--accent-teal); }
+  @media (max-width: 560px) { .checklist { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">FlyRank ML Internship — Capstone Research Paper</div>
+    <h1 class="title">Can Search Visibility Predict What's About to Decline?</h1>
+    <div class="byline">
+      <span><strong>Khadija Majeed</strong></span>
+      <span>Machine Learning Track</span>
+      <span>Lane: Refresh / Content Opportunity Scoring</span>
+      <span>September 2026</span>
+    </div>
+    <div class="abstract">
+      <span class="label">Abstract</span>
+      <p>This project asks whether historical search-visibility and click-performance signals, measured over a three-month window, can identify content likely to see a future decline in search clicks. Using the FlyRank internship warehouse, features were built from March–May 2026 activity and tested against actual June 2026 outcomes, keeping the future window fully separate from the training data. A logistic regression model was compared against a transparent visibility-only baseline on the same held-out test set using Precision@K, ROC-AUC, and Average Precision. The baseline outperformed the model at every tested K, suggesting that raw historical visibility alone was a stronger predictor of future decline than the engineered feature set. The resulting ranked queue is offered as a decision-support tool for content review — not as a claim about how Google's ranking systems work.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <ol>
+      <li><a href="#question"><span class="n">01</span> Question</a></li>
+      <li><a href="#data"><span class="n">02</span> Data</a></li>
+      <li><a href="#method"><span class="n">03</span> Methodology</a></li>
+      <li><a href="#results"><span class="n">04</span> Results</a></li>
+      <li><a href="#limits"><span class="n">05</span> Limitations</a></li>
+      <li><a href="#recs"><span class="n">06</span> Ranked recommendations</a></li>
+      <li><a href="#repro"><span class="n">07</span> Reproducibility</a></li>
+      <li><a href="#credit"><span class="n">08</span> Acknowledgments</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="question">
+    <div class="section-head">
+      <span class="section-num">1</span>
+      <h2 class="section-title">Question</h2>
+    </div>
+    <p class="lede">The research question, and the decision it's meant to support.</p>
+    <h3 class="sub">Research question</h3>
+    <p>Can historical search visibility and click-performance signals identify content that is likely to experience future search-performance decline?</p>
+    <h3 class="sub">Decision supported</h3>
+    <p>The output is meant to help a content or SEO reviewer decide which pages to look at first for a possible refresh — not to trigger any change automatically. The model produces a ranked priority queue, and a human makes the final call.</p>
+  </section>
+
+  <section id="data">
+    <div class="section-head">
+      <span class="section-num">2</span>
+      <h2 class="section-title">Data</h2>
+    </div>
+    <p>The analysis uses the pseudonymized FlyRank internship warehouse release, aggregated to the content level before modeling.</p>
+    <ul>
+      <li><strong>Historical window:</strong> March, April, and May 2026 — used to build every feature.</li>
+      <li><strong>Future window:</strong> June 2026 — held back entirely and used only to check what actually happened.</li>
+      <li><strong>Fields used:</strong> Google Search Console availability, impressions, and clicks.</li>
+      <li><strong>Fields excluded:</strong> client names, domains, URLs, private queries, credentials, and any pre-computed decision or action fields, to avoid circular modeling.</li>
+    </ul>
+    <p>After merging the historical and future windows, <strong>187,595</strong> unique content items had usable data in both periods. Roughly 83,571 items had no recorded clicks in the historical window, so a percent-change figure could not be calculated for them; since the decline label requires at least 5 historical clicks to qualify at all, these items default to a non-decline label rather than an undefined one.</p>
+  </section>
+
+  <section id="method">
+    <div class="section-head">
+      <span class="section-num">3</span>
+      <h2 class="section-title">Methodology</h2>
+    </div>
+    <h3 class="sub">Label definition</h3>
+    <p>A content item is labeled <code>1</code> (declining) when it had at least 5 historical clicks <em>and</em> its average daily clicks fell by 20% or more in June compared with the March–May average. Everything else is labeled <code>0</code>. This is an operational proxy, not a ground-truth measure of "true" decline.</p>
+    <div class="metrics">
+      <div class="metric"><div class="num">187,595</div><div class="lbl">content items scored</div></div>
+      <div class="metric"><div class="num">18.1%</div><div class="lbl">flagged as declining</div></div>
+      <div class="metric"><div class="num">3</div><div class="lbl">months of historical features</div></div>
+      <div class="metric"><div class="num">1</div><div class="lbl">held-out future month</div></div>
+    </div>
+    <h3 class="sub">Features</h3>
+    <p>Total and average daily impressions and clicks, days with impressions, days with clicks, historical click-through rate, and maximum daily impressions — all computed only from the March–May window.</p>
+    <h3 class="sub">Baseline</h3>
+    <p>A transparent baseline ranks content purely by historical search visibility (log-scaled impressions). It uses no label information and no model — it's the reference point the model has to beat.</p>
+    <h3 class="sub">Model</h3>
+    <p>Logistic regression, chosen because the target is binary and its output probability doubles directly as a ranking score. Features were median-imputed and standardized inside a single pipeline to avoid leakage between train and test folds.</p>
+    <h3 class="sub">Validation</h3>
+    <p>An 80/20 stratified train/test split was held out from the historical-feature, future-outcome dataset. The model and the baseline were scored on the exact same test set. June's actual performance was used only to build the label — never as a model input.</p>
+  </section>
+
+  <section id="results">
+    <div class="section-head">
+      <span class="section-num">4</span>
+      <h2 class="section-title">Results</h2>
+    </div>
+    <p class="lede">Model vs. baseline, on the same held-out split.</p>
+
+    <div class="metrics">
+      <div class="metric"><div class="num">0.92</div><div class="lbl">ROC-AUC</div></div>
+      <div class="metric"><div class="num">0.64</div><div class="lbl">Average Precision</div></div>
+      <div class="metric"><div class="num">0.89</div><div class="lbl">Overall accuracy</div></div>
+      <div class="metric"><div class="num">0.73</div><div class="lbl">F1 — decline class</div></div>
+    </div>
+
+    <div class="chart-block">
+      <svg viewBox="0 0 640 300" width="100%" role="img" aria-label="Precision at K, model versus baseline">
+        <!-- axes -->
+        <line x1="60" y1="20" x2="60" y2="240" stroke="#DBDBD2" stroke-width="1"/>
+        <line x1="60" y1="240" x2="600" y2="240" stroke="#DBDBD2" stroke-width="1"/>
+        <!-- y gridlines + labels -->
+        <text x="46" y="244" text-anchor="end" font-size="11" fill="#8A9096">0.0</text>
+        <line x1="60" y1="185" x2="600" y2="185" stroke="#EDEDE6" stroke-width="1"/>
+        <text x="46" y="189" text-anchor="end" font-size="11" fill="#8A9096">0.25</text>
+        <line x1="60" y1="130" x2="600" y2="130" stroke="#EDEDE6" stroke-width="1"/>
+        <text x="46" y="134" text-anchor="end" font-size="11" fill="#8A9096">0.50</text>
+        <line x1="60" y1="75" x2="600" y2="75" stroke="#EDEDE6" stroke-width="1"/>
+        <text x="46" y="79" text-anchor="end" font-size="11" fill="#8A9096">0.75</text>
+        <line x1="60" y1="20" x2="600" y2="20" stroke="#EDEDE6" stroke-width="1"/>
+        <text x="46" y="24" text-anchor="end" font-size="11" fill="#8A9096">1.00</text>
+
+        <!-- baseline line: K=10,20,50,100 -> 0.80,0.85,0.80,0.75 -->
+        <polyline points="150,64 300,42 450,64 570,86" fill="none" stroke="#B8722E" stroke-width="2.5"/>
+        <circle cx="150" cy="64" r="4" fill="#B8722E"/>
+        <circle cx="300" cy="42" r="4" fill="#B8722E"/>
+        <circle cx="450" cy="64" r="4" fill="#B8722E"/>
+        <circle cx="570" cy="86" r="4" fill="#B8722E"/>
+
+        <!-- model line: 0.70, 0.60, 0.62, 0.58 -->
+        <polyline points="150,108 300,152 450,141 570,152" fill="none" stroke="#2E6F80" stroke-width="2.5"/>
+        <circle cx="150" cy="108" r="4" fill="#2E6F80"/>
+        <circle cx="300" cy="152" r="4" fill="#2E6F80"/>
+        <circle cx="450" cy="141" r="4" fill="#2E6F80"/>
+        <circle cx="570" cy="152" r="4" fill="#2E6F80"/>
+
+        <!-- x labels -->
+        <text x="150" y="258" text-anchor="middle" font-size="12" fill="#52585D">K=10</text>
+        <text x="300" y="258" text-anchor="middle" font-size="12" fill="#52585D">K=20</text>
+        <text x="450" y="258" text-anchor="middle" font-size="12" fill="#52585D">K=50</text>
+        <text x="570" y="258" text-anchor="middle" font-size="12" fill="#52585D">K=100</text>
+
+        <!-- legend -->
+        <circle cx="200" cy="282" r="4" fill="#B8722E"/>
+        <text x="210" y="286" font-size="12.5" fill="#52585D">Baseline (visibility only)</text>
+        <circle cx="400" cy="282" r="4" fill="#2E6F80"/>
+        <text x="410" y="286" font-size="12.5" fill="#52585D">Logistic regression model</text>
+      </svg>
+      <div class="chart-caption">Precision@K on the held-out test set. The baseline led at every K tested.</div>
+    </div>
+
+    <div class="chart-block">
+      <svg viewBox="0 0 640 220" width="100%" role="img" aria-label="Distribution of the future decline label">
+        <line x1="60" y1="20" x2="60" y2="170" stroke="#DBDBD2" stroke-width="1"/>
+        <line x1="60" y1="170" x2="600" y2="170" stroke="#DBDBD2" stroke-width="1"/>
+        <!-- bar 0: 153658 -> tall; bar 1: 33937 -->
+        <rect x="140" y="34" width="120" height="136" fill="#5B6B78"/>
+        <rect x="380" y="140" width="120" height="30" fill="#A65141"/>
+        <text x="200" y="26" text-anchor="middle" font-size="13" fill="#171A1C" font-weight="600">153,658</text>
+        <text x="440" y="132" text-anchor="middle" font-size="13" fill="#171A1C" font-weight="600">33,937</text>
+        <text x="200" y="190" text-anchor="middle" font-size="12.5" fill="#52585D">Not declining (0)</text>
+        <text x="440" y="190" text-anchor="middle" font-size="12.5" fill="#52585D">Declining (1) — 18.1%</text>
+      </svg>
+      <div class="chart-caption">Future decline label distribution across all scored content, June 2026 outcome window.</div>
+    </div>
+
+    <div class="callout finding">
+      <strong>Honest finding:</strong> the transparent baseline — ranking purely by historical visibility — beat the logistic regression model at every tested value of K (Precision@10: 0.80 vs. 0.70; Precision@100: 0.75 vs. 0.58). This is a real result, not a failed experiment: it suggests the highest-visibility pages were already the most likely to show a future click decline, plausibly a regression-to-the-mean effect where high-traffic pages simply have more room to fall. In this experiment, the engineered feature set did not add ranking value beyond a simple visibility heuristic. That's a useful finding on its own — it points toward testing features the current set doesn't capture, such as content age, freshness, or SERP volatility, in a future iteration.
+    </div>
+  </section>
+
+  <section id="limits">
+    <div class="section-head">
+      <span class="section-num">5</span>
+      <h2 class="section-title">Limitations</h2>
+    </div>
+    <div class="callout limits">
+      <ul style="margin-bottom:0;">
+        <li>This analysis is observational and intended for decision support, not automated action.</li>
+        <li>A high opportunity score does not mean refreshing a page will cause its performance to improve.</li>
+        <li>The decline label is an operational proxy built from observed click changes — not a directly verified business outcome.</li>
+        <li>Only a single future window (June 2026) was tested, so performance across other future periods is unknown.</li>
+        <li>The dataset doesn't capture page content quality, SERP features, competitor moves, or editorial changes — all of which can drive real decline independent of the signals used here.</li>
+        <li>This work makes no claim about how Google's ranking systems actually operate.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="recs">
+    <div class="section-head">
+      <span class="section-num">6</span>
+      <h2 class="section-title">Ranked recommendations</h2>
+    </div>
+    <p class="lede">The output is a review queue, not a publishing decision. Six ways to use it.</p>
+    <ol class="rec-list">
+      <li><div><h4>Start with high-visibility, high-score pages</h4><p>These carry the most observed search exposure, so getting them right matters most.</p></div></li>
+      <li><div><h4>Investigate before refreshing</h4><p>Look at the historical-to-June pattern for each flagged page before deciding a refresh is the right move.</p></div></li>
+      <li><div><h4>Separate CTR problems from content problems</h4><p>Strong visibility with weak click-through often points to a title or snippet fix, not a full rewrite.</p></div></li>
+      <li><div><h4>Treat a high score as a prompt to review, not to act</h4><p>Given the baseline's edge over the model, a high opportunity score should trigger a look, not an automatic edit.</p></div></li>
+      <li><div><h4>Leave strong, low-score performers alone</h4><p>Monitoring is usually more appropriate than unnecessary intervention.</p></div></li>
+      <li><div><h4>Keep a human in the loop</h4><p>This ranking prioritizes attention. The refresh, rewrite, or no-action call is an editorial decision.</p></div></li>
+    </ol>
+
+    <h3 class="sub">Top 10 — review queue</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Content ID</th><th>Opportunity score</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td class="id">content_21309e9a83c83653</td><td class="score">97.10</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>2</td><td class="id">content_545bb6cc7081ded3</td><td class="score">97.08</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>3</td><td class="id">content_8d7d99f109e19aa2</td><td class="score">96.96</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>4</td><td class="id">content_77276ad7a26f4905</td><td class="score">96.80</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>5</td><td class="id">content_62770e1299963fe4</td><td class="score">96.59</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>6</td><td class="id">content_44f34c0a90047651</td><td class="score">96.49</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>7</td><td class="id">content_963de14b1f58978f</td><td class="score">96.44</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>8</td><td class="id">content_943dc881428182b8</td><td class="score">96.43</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>9</td><td class="id">content_e578ac84778da489</td><td class="score">96.04</td><td><span class="tag refresh">Refresh</span></td></tr>
+          <tr><td>10</td><td class="id">content_ac7b77e81c53d636</td><td class="score">95.84</td><td><span class="tag refresh">Refresh</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13.5px; color:var(--ink-soft); margin-top:10px;">Full ranked table (all scored content) is available in the repo — see Reproducibility below.</p>
+  </section>
+
+  <section id="repro">
+    <div class="section-head">
+      <span class="section-num">7</span>
+      <h2 class="section-title">Reproducibility</h2>
+    </div>
+    <p>Every step above — data loading, feature construction, the label definition, the baseline, the model, and all charts — runs top to bottom in a single notebook.</p>
+    <ul>
+      <li>Capstone notebook: <a href="REPLACE_WITH_YOUR_NOTEBOOK_LINK">work/capstone.ipynb</a></li>
+      <li>Full repository: <a href="REPLACE_WITH_YOUR_REPO_LINK">github.com/your-username/your-repo</a></li>
+      <li>Ranked output (CSV): <code>outputs/capstone_top20_refresh_queue.csv</code></li>
+    </ul>
+  </section>
+
+  <section id="credit" style="border-bottom:none;">
+    <div class="section-head">
+      <span class="section-num">8</span>
+      <h2 class="section-title">Acknowledgments</h2>
+    </div>
+    <p>Built on the FlyRank ML Internship dataset — <a href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a>.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-card">
+      Research paper for the FlyRank Machine Learning Internship — Google Search Ranking &amp; Discoverability capstone, Refresh / Content Opportunity Scoring lane.
+      <div class="checklist">
+        <span>Research question defined</span>
+        <span>Leakage-safe future window held out</span>
+        <span>Transparent baseline included</span>
+        <span>Model vs. baseline on same split</span>
+        <span>Limitations documented</span>
+        <span>Human-in-the-loop framing throughout</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
